@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css"/>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        color: #2c3e50;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      #root {
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      h1 {
+        color: #e74c3c;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .input-group {
+        width: 100%;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .input-group label {
+        margin-bottom: 8px;
+        color: #7f8c8d;
+        font-weight: bold;
+      }
+
+
+      #urlInput {
+        padding: 10px;
+        border: 1px solid #bdc3c7;
+        border-radius: 5px;
+        width: calc(100% - 20px);
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+
+      #urlInput:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+      }
+
+      .btn-primary {
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: 100%;
+        max-width: 200px;
+        text-align: center;
+      }
+
+      .btn-primary:hover {
+        background-color: #2980b9;
+      }
+
+      #message {
+        margin-top: 20px;
+        color: #27ae60;
+        font-weight: bold;
+        text-align: center;
+      }
+       .error-message{
+        color: #e74c3c;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      #downloadLink {
+        display: none;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        text-align: center;
+      }
+
+      #downloadLink:hover {
+        background-color: #27ae60;
+      }
+       @media screen and (max-width: 600px) {
+        #root {
+            padding: 10px;
+        }
+        .input-group label{
+            margin-bottom: 5px;
+        }
+        #urlInput{
+            margin-bottom: 10px;
+        }
+        .container h1{
+            font-size: 1.5em;
+        }
+    }
+    </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useCallback } = React;
+
+    const YouTubeDownloader = () => {
+      const [url, setUrl] = useState('');
+      const [message, setMessage] = useState('');
+      const [downloadLink, setDownloadLink] = useState('');
+      const [errorMessage, setErrorMessage] = useState('');
+
+      const handleChange = (event) => {
+        setUrl(event.target.value);
+        setMessage('');
+        setDownloadLink('');
+        setErrorMessage('');
+      };
+
+      const handleSubmit = useCallback(async () => {
+        if (!url) {
+          setErrorMessage('Bitte gib eine YouTube-URL ein.');
+          return;
+        }
+        try {
+            const parsedUrl = new URL(url);
+            if (!parsedUrl.hostname.includes('youtube.com') && !parsedUrl.hostname.includes('youtu.be')) {
+                setErrorMessage('Ungültige URL. Bitte gib eine gültige YouTube-URL ein.');
+                return;
+            }
+        } catch (error) {
+             setErrorMessage('Ungültige URL. Bitte gib eine gültige YouTube-URL ein.');
+             return;
+        }
+
+        setMessage('Verarbeite Video...');
+        setErrorMessage('');
+        setDownloadLink('');
+
+        try {
+          // Simuliere eine Serveranfrage mit einem Promise
+          const response = await new Promise((resolve) => {
+            setTimeout(() => {
+              // Simuliere Erfolg oder Fehler
+              const success = Math.random() > 0.2; // 80% Erfolgswahrscheinlichkeit
+              if (success) {
+                // Simuliere eine Download-URL
+                const simulatedDownloadUrl = 'https://example.com/download/video123.mp4';
+                resolve({
+                  ok: true,
+                  url: simulatedDownloadUrl,
+                });
+              } else {
+                resolve({
+                  ok: false,
+                  message: 'Herunterladen des Videos fehlgeschlagen. Bitte versuche es später noch einmal.',
+                });
+              }
+            }, 2000); // Simuliere 2 Sekunden Verzögerung
+          });
+
+          if (response.ok) {
+            setMessage('Video erfolgreich verarbeitet!');
+            setDownloadLink(response.url);
+          } else {
+            setMessage('');
+            setErrorMessage(response.message);
+          }
+        } catch (error) {
+          setMessage('');
+          setErrorMessage('Ein Fehler ist aufgetreten: ' + error.message);
+        }
+      }, [url]);
+
+      return (
+        <div className="container">
+          <h1>YouTube Video Downloader</h1>
+          <div className="input-group">
+            <label htmlFor="urlInput">YouTube URL:</label>
+            <input
+              type="text"
+              id="urlInput"
+              placeholder="Gib die YouTube-URL ein"
+              value={url}
+              onChange={handleChange}
+            />
+          </div>
+          <button className="btn-primary" onClick={handleSubmit}>
+            Herunterladen
+          </button>
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
+          {message && <p id="message">{message}</p>}
+          {downloadLink && (
+            <a id="downloadLink" href={downloadLink} download>
+              Video herunterladen
+            </a>
+          )}
+        </div>
+      );
+    };
+
+    ReactDOM.render(<YouTubeDownloader />, document.getElementById('root'));
+  </script>
+</body>
+</html>
